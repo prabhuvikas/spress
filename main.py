@@ -46,16 +46,16 @@ def machine_off():
 
 ## Todo 3 Print report
 def print_report(resources,money):
-    print(f"Water:{resources.water}ml")
-    print(f"Milk:{resources.milk}ml")
-    print(f"Coffee:{resources.coffee}g")
+    print(f"Water:{resources['water']}ml")
+    print(f"Milk:{resources['milk']}ml")
+    print(f"Coffee:{resources['coffee']}g")
     print(f"Money:${money}")
 
 ## Todo 4 Brew Coffee function with type
-def brew_coffee(coffee, choice,resources):
+def brew_coffee(coffee,resource):
     for key in coffee:
-        resources[key] -= coffee[key]
-    return resources
+        resource[key] -= coffee[key]
+    return resource
 ## Todo 5 Process payment
 def process_payment(amount ,coffee_money,holding):
     if amount < coffee_money:
@@ -64,7 +64,7 @@ def process_payment(amount ,coffee_money,holding):
     else :
         change = amount - coffee_money
         print(f"Here is ${change} dollars in change.")
-    return holding + change
+    return holding + coffee_money
 ## Todo 6 Accept Payment
 def accept_payment():
     penny = int(input("How many pennies?"))
@@ -77,7 +77,24 @@ def accept_payment():
 ## Todo 7 Check resources
 def check_resources(resources,ctypedata):
     for key in ctypedata:
-        if ctypedata[key] < resources[key]:
+        if ctypedata[key] > resources[key]:
             print(f"Sorry there is not enough {key}.")
             return False
     return True
+while machine_status:
+    choice = selectCoffee()
+    if choice == "off":
+        machine_off()
+    elif choice == "report":
+        print_report(resources,money)
+    elif not check_resources(resources,MENU[choice]["ingredients"]) :
+        continue
+    else:
+        money_input = accept_payment()
+        accept = process_payment(money_input,MENU[choice]["cost"],money)
+        if accept > 0 :
+            print_report(resources,money)
+            money = accept
+            resources = brew_coffee(MENU[choice]["ingredients"],resources)
+            print(f"Here is your {choice}. Enjoy!")
+            print_report(resources, money)
